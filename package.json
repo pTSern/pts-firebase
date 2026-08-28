@@ -1,0 +1,209 @@
+{
+    "$schema": "./@types/schema/package/index.json",
+    "package_version": 2,
+    "name": "pts-firebase",
+    "version": "1.0.0",
+    "author": "pTSern",
+    "editor": ">=3.8.8",
+    "description": "i18n:pts-firebase.description",
+    "main": "./bootstrap.js",
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w"
+    },
+    "devDependencies": {
+        "@cocos/creator-types": "^3.8.0",
+        "@types/node": "^18.17.1",
+        "typescript": "^5.8.2"
+    },
+    "panels": {
+        "default": {
+            "title": "pTS_Firebase",
+            "type": "dockable",
+            "main": "dist/panel.js",
+            "size": {
+                "min-width": 450,
+                "min-height": 550
+            }
+        }
+    },
+    "contributions": {
+        "asset-db": {
+            "mount": {
+                "path": "./assets",
+                "readonly": true
+            }
+        },
+        "profile": {
+            "project": {
+                "apiKey": {
+                    "default": "",
+                    "message": "profile::project::changed_config",
+                    "label": "API Key"
+                },
+                "authDomain": {
+                    "default": "",
+                    "message": "profile::project::changed_config",
+                    "label": "Auth Domain"
+                },
+                "databaseURL": {
+                    "default": "",
+                    "message": "profile::project::changed_config",
+                    "label": "Database URL"
+                },
+                "projectId": {
+                    "default": "",
+                    "message": "profile::project::changed_config",
+                    "label": "Project ID"
+                },
+                "storageBucket": {
+                    "default": "",
+                    "message": "profile::project::changed_config",
+                    "label": "Storage Bucket"
+                },
+                "messagingSenderId": {
+                    "default": "",
+                    "message": "profile::project::changed_config",
+                    "label": "Messaging Sender ID"
+                },
+                "appId": {
+                    "default": "",
+                    "message": "profile::project::changed_config",
+                    "label": "App ID"
+                },
+                "measurementId": {
+                    "default": "",
+                    "message": "profile::project::changed_config",
+                    "label": "Measurement ID"
+                },
+                "auto_save": {
+                    "default": true,
+                    "message": "profile::project::changed_auto_save",
+                    "label": "Auto Save"
+                },
+                "btn_open_panel": {
+                    "default": false,
+                    "message": "open-panel",
+                    "label": "Open Firebase Panel"
+                },
+                "btn_save_config": {
+                    "default": false,
+                    "message": "save-config",
+                    "label": "Save Config"
+                }
+            }
+        },
+        "project": {
+            "tab_1": {
+                "label": "PTS Firebase",
+                "content": {
+                    "apiKey": {
+                        "ui": "ui-input",
+                        "attributes": {
+                            "placeholder": "Enter apiKey...",
+                            "tooltip": "Firebase API Key"
+                        }
+                    },
+                    "authDomain": {
+                        "ui": "ui-input",
+                        "attributes": {
+                            "placeholder": "Enter authDomain...",
+                            "tooltip": "Firebase Auth Domain (e.g. project-id.firebaseapp.com)"
+                        }
+                    },
+                    "databaseURL": {
+                        "ui": "ui-input",
+                        "attributes": {
+                            "placeholder": "Enter databaseURL...",
+                            "tooltip": "Firebase Realtime Database URL (optional)"
+                        }
+                    },
+                    "projectId": {
+                        "ui": "ui-input",
+                        "attributes": {
+                            "placeholder": "Enter projectId...",
+                            "tooltip": "Firebase Project ID"
+                        }
+                    },
+                    "storageBucket": {
+                        "ui": "ui-input",
+                        "attributes": {
+                            "placeholder": "Enter storageBucket...",
+                            "tooltip": "Firebase Storage Bucket URL"
+                        }
+                    },
+                    "messagingSenderId": {
+                        "ui": "ui-input",
+                        "attributes": {
+                            "placeholder": "Enter messagingSenderId...",
+                            "tooltip": "Firebase Cloud Messaging Sender ID"
+                        }
+                    },
+                    "appId": {
+                        "ui": "ui-input",
+                        "attributes": {
+                            "placeholder": "Enter appId...",
+                            "tooltip": "Firebase Web App ID"
+                        }
+                    },
+                    "measurementId": {
+                        "ui": "ui-input",
+                        "attributes": {
+                            "placeholder": "Enter measurementId...",
+                            "tooltip": "Google Analytics Measurement ID (e.g. G-XXXXX)"
+                        }
+                    },
+                    "auto_save": {
+                        "ui": "ui-checkbox",
+                        "attributes": {
+                            "tooltip": "Automatically save to config.json whenever inputs change"
+                        }
+                    },
+                    "btn_open_panel": {
+                        "ui": "ui-button",
+                        "attributes": {
+                            "type": "primary",
+                            "label": "Open Firebase Panel"
+                        }
+                    },
+                    "btn_save_config": {
+                        "ui": "ui-button",
+                        "attributes": {
+                            "type": "success",
+                            "label": "Save Config"
+                        }
+                    }
+                }
+            }
+        },
+        "messages": {
+            "open-panel": {
+                "methods": [
+                    "openPanel"
+                ]
+            },
+            "save-config": {
+                "methods": [
+                    "saveConfig"
+                ]
+            },
+            "profile::project::changed_config": {
+                "methods": [
+                    "profile::project::changed_config"
+                ]
+            },
+            "profile::project::changed_auto_save": {
+                "methods": [
+                    "profile::project::changed_auto_save"
+                ]
+            }
+        },
+        "menu": [
+            {
+                "path": "i18n:menu.extension/pTS Firebase",
+                "label": "Open Panel",
+                "message": "open-panel"
+            }
+        ]
+    }
+}
