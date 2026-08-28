@@ -11,7 +11,7 @@ interface _IUserData {
     uid: string;
 }
 
-type _TDocKeys = 'users' | 'login_codes' | 'game_data';
+type _TDocKeys = 'users' | 'login_codes' | 'backup';
 type Firestore = pTS.firebase.firestore.Firestore;
 type Auth = pTS.firebase.auth.Auth;
 
@@ -25,16 +25,18 @@ export interface _TGetter {
 export type _TGetBackUp = {
     all: object[]
     latest: object
+    backup: object
 }
 
 export type _TBackUp = {
-    set(data: object): void
+    set(data: pFlex.TJsonString): void
     get<_TKey extends keyof _TGetBackUp>(data: _TKey): _TGetBackUp[_TKey]
 }
 
 interface _IFireBase {
     auth(code?: string): Promise<_IUserData>;
     write(key: _TDocKeys, segment: string, packages: any): Promise<void>;
+    query(key: _TDocKeys, segment: string): Promise<ReturnType<typeof pTS.firebase.firestore.getDoc>>;
     key(key: _TDocKeys, segment: string): ReturnType<typeof pTS.firebase.firestore.doc>;
     backup<_TKey extends keyof _TBackUp>(method: _TKey, ...params: Parameters<_TBackUp[_TKey]>): Promise<ReturnType<_TBackUp[_TKey]>>;
     logout(): Promise<void>;
@@ -71,21 +73,67 @@ const _$init = new Promise<void>(_rs => {
             return _$fb.firestore.setDoc(_$.key(key, segment), packages);
         }
 
-        _$.backup = function(key, ...params): any {
+        _$.query = function(key, segment): any {
+            return _$fb.firestore.getDoc(_$.key(key, segment));
+        }
+
+        _$.backup = async function(key, ...params): Promise<any> {
             if(!_$user) return;
             switch(key) {
                 case 'set': {
-                    return _$.write('game_data', _$user.uid, params[0]);
+                    return _$fb.firestore.runTransaction(_$firestore, async _transaction => {
+                        const _lastest = _$.key('backup', `${_$user.uid}_latest`);
+                        const _backup = _$.key('backup', `${_$user.uid}_backup`);
+
+                        const _latest = await _transaction.get(_lastest);
+                        if(_latest.exists()) {
+                            _transaction.set(_backup, _latest.data());
+                        }
+
+                        const _obj = {
+                            user_id: _$user.uid,
+                            at: _$fb.firestore.serverTimestamp(),
+                            data: params[0]
+                        }
+
+                        console.log("[FireBase] Backup data:", _obj);
+                        _transaction.set(_lastest, _obj);
+                    })
                 }
                 case 'get': {
-                    switch(params[0]) {
-                        case 'all': return []
-                        case 'latest': return {}
+                    if(params[0] === 'all') {
+                        const _list = await Promise.all([
+                            _$.query('backup', `${_$user.uid}_backup`),
+                            _$.query('backup', `${_$user.uid}_latest`)
+                        ])
+
+                        const _result = []
+                        for(const _snap of _list) {
+                            if(!_snap.exists()) continue;
+                            const _obj: any = _snap.data();
+                            try {
+                                const data = typeof _obj.data === 'string' ? JSON.parse(_obj.data) : _obj.data;
+                                _result.push(data);
+                            } catch (e) {
+                                _result.push(_obj.data);
+                            }
+                        }
+                        return _result
+                    }
+
+                    const _snap = await _$.query('backup', `${_$user.uid}_${params[0]}`);
+                    if(!_snap.exists()) {
+                        return null
+                    }
+
+                    const _obj: any = _snap.data();
+                    try {
+                        return typeof _obj.data === 'string' ? JSON.parse(_obj.data) : _obj.data;
+                    } catch (e) {
+                        return _obj.data;
                     }
                 }
             }
-
-            return
         }
 
         _$.track = function(event, data) {
@@ -169,7 +217,7 @@ type _$TMethodKeys<T> = {
 }[keyof T];
 
 async function _caller<K extends keyof _TGetter>(method: 'get', key: K): Promise<_TGetter[K]>;
-async function _caller(method: 'backup', subMethod: 'set', data: object): Promise<void>;
+async function _caller(method: 'backup', subMethod: 'set', data: pFlex.TJsonString): Promise<void>;
 async function _caller<K extends keyof _TGetBackUp>(method: 'backup', subMethod: 'get', data: K): Promise<_TGetBackUp[K]>;
 async function _caller<TMethod extends Exclude<_$TMethodKeys<_IFireBase>, 'get' | 'backup'>>(
     method: TMethod,
