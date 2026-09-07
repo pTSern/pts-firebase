@@ -3,7 +3,6 @@ import { Event_Driver } from 'db://pts-core/scripts/Components/Event/Event.Drive
 import { pConst, pEngine } from 'db://pts-core/scripts/utils';
 import { FireBase } from './FireBase.Initialize';
 import { singleton } from 'db://pts-core/scripts/utils/pClass';
-import { Data_Manager } from 'db://pts-core/scripts/data/manager';
 
 const { ccclass, property } = _decorator;
 
@@ -33,16 +32,15 @@ export class FireBase_Controller extends Event_Driver<_I> {
     }
 
     protected onDestroy(): void {
-        
     }
 
     protected start(): void {
         FireBase.ready().then(_ => this.emit('onFireBaseReady'));
     }
 
-    protected async _onSyncData() {
-        const _data = await Data_Manager.json(true);
-        return FireBase('backup', 'set', _data);
+    protected async _onSyncData(data: any) {
+        if(!data) return this.emit('onSyncFail', new Error('Invalid data for sync'));
+        return FireBase('backup', 'set', data);
     }
 
     protected async _onAuthLookUp(...args: any[]) {
